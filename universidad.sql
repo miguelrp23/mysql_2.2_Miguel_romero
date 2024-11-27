@@ -66,6 +66,21 @@ SELECT
         (`p`.`tipo` = 'profesor')
     ORDER BY `p`.`apellido1` , `p`.`apellido2` , `p`.`nombre`
 
+
+
+-- Devuelve un listado con el nombre de las asignaturas, año de inicio y año de fin del curso escolar del alumno/a con NIF 26902806M.
+SELECT asignatura.nombre, curso_escolar.anyo_inicio, curso_escolar.anyo_fin , persona.nif 
+FROM alumno_se_matricula_asignatura m inner JOIN curso_escolar 
+ON m.id_curso_escolar =  curso_escolar.id inner JOIN asignatura 
+ON m.id_asignatura= asignatura.id inner JOIN persona ON id_alumno=persona.id WHERE persona.nif='26902806M';
+
+-- Devuelve un listado con el nombre de todos los departamentos que tienen profesores/as que imparten alguna asignatura en el Grado en Ingeniería Informática (Plan 2015).
+SELECT DISTINCT departamento.nombre FROM departamento JOIN profesor ON departamento.id= profesor.id_departamento 
+JOIN asignatura ON profesor.id_profesor = asignatura.id_profesor 
+JOIN grado ON  asignatura.id_grado = grado.id 
+WHERE grado.nombre = 'Grado en Ingeniería Informática (Plan 2015)';
+
+
 -- Alumnos matriculados en 2018/2019
  SELECT DISTINCT
         `a`.`nombre` AS `nombre`,
@@ -79,6 +94,7 @@ SELECT
         ((`a`.`tipo` = 'alumno')
             AND (`c`.`anyo_inicio` = 2018)
             AND (`c`.`anyo_fin` = 2019))
+
 
 -- Profesores/as y sus departamentos (LEFT JOIN)
     SELECT 
@@ -95,16 +111,10 @@ SELECT
 
 
 -- Profesores/as que no imparten ninguna asignatura
- SELECT 
-        `p`.`nombre` AS `nombre`,
-        `p`.`apellido1` AS `apellido1`,
-        `p`.`apellido2` AS `apellido2`
-    FROM
-        (`universidad`.`persona` `p`
-        LEFT JOIN `universidad`.`asignatura` `a` ON ((`p`.`id` = `a`.`id_profesor`)))
-    WHERE
-        ((`p`.`tipo` = 'profesor')
-            AND (`a`.`id_profesor` IS NULL))
+SELECT departamento.nombre AS DEPARTAMENTO,  persona.apellido1, persona.apellido2, persona.nombre
+ FROM departamento RIGHT JOIN profesor  ON departamento.id=profesor.id_departamento 
+ LEFT JOIN persona ON persona.id=profesor.id_profesor ORDER BY  departamento.nombre;
+
 -- Asignaturas sin profesor/a asignado
  SELECT 
         `universidad`.`asignatura`.`nombre` AS `nombre`
@@ -227,16 +237,8 @@ SELECT *
         (`universidad`.`persona`.`tipo` = 'alumno')
     ORDER BY `universidad`.`persona`.`fecha_nacimiento` DESC
     LIMIT 1
+    
 -- Profesores/as con departamento que no imparten asignaturas
- SELECT 
-        `p`.`nombre` AS `nombre`,
-        `p`.`apellido1` AS `apellido1`,
-        `p`.`apellido2` AS `apellido2`,
-        `d`.`nombre` AS `departamento`
-    FROM
-        ((`universidad`.`persona` `p`
-        JOIN `universidad`.`departamento` `d` ON ((`p`.`id` = `d`.`id`)))
-        LEFT JOIN `universidad`.`asignatura` `a` ON ((`p`.`id` = `a`.`id_profesor`)))
-    WHERE
-        ((`p`.`tipo` = 'profesor')
-            AND (`a`.`id_profesor` IS NULL))
+SELECT persona.id, persona.nif, persona.nombre, persona.apellido1, persona.apellido2, persona.tipo, departamento.nombre AS Departamento, asignatura.id as id_asignatura FROM persona JOIN profesor ON persona.id=profesor.id_profesor LEFT JOIN 
+asignatura ON asignatura.id_profesor=profesor.id_profesor LEFT JOIN 
+departamento ON departamento.id=profesor.id_departamento WHERE asignatura.id IS NULL
